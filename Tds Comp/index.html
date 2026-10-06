@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TDS Comp</title>
+
+  <!-- TAB LOGO (FAVICON) -->
+  <link rel="shortcut icon" type="image/png" href="favicon.png?v=2">
+  <link rel="icon" type="image/png" href="favicon.png?v=2">
+
+  <style>
+    /* Reset & Fonts */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: #0f172a;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Fixed Background Image Layer */
+    #bg-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.6)), 
+                  url('TDSComp(banner).jpg') no-repeat center center;
+      background-size: cover;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Floating Sakura Layer */
+    #blossom-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1; /* Above background layer, below cards */
+    }
+
+    /* Top Navigation Link Bar */
+    header {
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    nav {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: color 0.2s, transform 0.2s;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    nav a:hover, nav a.active {
+      color: #FAA0A0; /* Pastel Red */
+      transform: translateY(-2px);
+    }
+
+    /* Main Container */
+    main {
+      position: relative;
+      z-index: 2; /* Sits above falling petals */
+      width: 80vw;
+      max-width: 1400px;
+      min-height: calc(100vh - 80px);
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Standard Card Styling */
+    .card {
+      background: rgba(20, 20, 25, 0.8);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 8px;
+      padding: 32px 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 8px 25px rgba(50, 0, 10, 0.7);
+      transition: transform 0.2s, border-color 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    a.card:hover {
+      transform: translateY(-3px);
+      border-color: #FAA0A0; /* Pastel Red */
+    }
+
+    .card-icon {
+      width: 70px;
+      height: 70px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 20px;
+    }
+
+    .card-icon svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-title {
+      color: #FAA0A0; /* Pastel Red */
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+      margin-left: 19px;
+    }
+
+    .card-description {
+      color: #FFE6EA; /* Lightish Pink */
+      font-size: 0.95rem;
+      line-height: 1.4;
+      margin-left: 23px;
+    }
+
+    /* Doubled-Size Welcome Card Rules */
+    .welcome-card {
+      padding: 40px;
+      border-width: 3px;
+      gap: 30px;
+    }
+
+    .welcome-card .card-icon {
+      width: 130px;
+      height: 130px;
+    }
+
+    .welcome-card .card-title {
+      font-size: 2.4rem;
+    }
+
+    .welcome-card .card-description {
+      font-size: 1.35rem;
+      line-height: 1.5;
+    }
+
+    /* Two Column Grid that stretches downwards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      flex-grow: 1;
+      align-items: stretch;
+    }
+
+    /* Responsive Design for Mobile & Small Screens */
+    @media (max-width: 900px) {
+      main {
+        width: 95vw;
+        padding: 20px 10px;
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        gap: 15px;
+      }
+
+      nav a {
+        font-size: 0.85rem;
+      }
+
+      .welcome-card {
+        padding: 24px;
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .welcome-card .card-icon {
+        width: 100px;
+        height: 100px;
+      }
+
+      .welcome-card .card-title {
+        font-size: 1.8rem;
+      }
+
+      .welcome-card .card-description {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Separate Background Layer -->
+  <div id="bg-layer"></div>
+
+  <!-- Floating Cherry Blossom Canvas -->
+  <canvas id="blossom-canvas"></canvas>
+
+  <!-- Top Navigation Bar -->
+  <header>
+    <nav>
+      <a href="index.html" class="active">HOME</a>
+      <a href="contributors.html">CONTRIBUTORS</a>
+      <a href="tournaments.html">TOURNAMENTS</a>
+      <a href="spreadsheets.html">TDS SPREADSHEETS</a>
+      <a href="resources.html">RESOURCES</a>
+      <a href="strategies.html">FEATURED STRATEGIES</a>
+      <a href="https://discord.gg/cAY2Tbub4" target="_blank">TOURNAMENT DISCORD</a>
+      <a href="games.html">GAMES</a>
+    </nav>
+  </header>
+
+  <!-- Main Content Area -->
+  <main>
+
+    <div class="card welcome-card">
+      <div class="card-icon">
+        <img src="welcome-logo.png" alt="Welcome Icon" style="width: 125%; height: 125%; object-fit: contain;">
+      </div>
+      <div class="card-content">
+        <div class="card-title">Welcome!</div>
+        <div class="card-description">
+          Here is my TDS centered website that contains things like TDS Tournaments and more! Enjoy your stay :3
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Grid -->
+    <div class="card-grid">
+
+      <!-- Discord Card (External Redirect) -->
+      <a href="https://discord.gg/cAY2Tbub4" target="_blank" class="card">
+        <div class="card-icon">
+          <img src="discord-logo.png" alt="Discord Icon" style="width: 150%; height: 210%; object-fit: contain;">
+        </div>
+        <div class="card-content">
+          <div class="card-title">Tournament Discord</div>
+          <div class="card-description">
+            The easiest way to obtain info about the site or any tournaments, or to get intouch with me or any admins.
+          </div>
+        </div>
+      </a>
+
+      <!-- Games Card (Page Redirect) -->
+      <a href="games.html" class="card">
+        <div class="card-icon">
+          <img src="games-logo.png" alt="Games Icon" style="width: 320%; height: 320%; object-fit: contain;">
+        </div>
+        <div class="card-content">
+          <div class="card-title">Games</div>
+          <div class="card-description">
+            Test your game knowledge through multiple games. Do no expect them to be perfect they're made in my freetime.
+          </div>
+        </div>
+      </a>
+
+      <!-- Contributors Card (Page Redirect) -->
+      <a href="contributors.html" class="card">
+        <div class="card-icon">
+          <img src="contributors-logo.png" alt="Contributors Icon" style="width: 240%; height: 240%; object-fit: contain;">
+        </div>
+        <div class="card-content">
+          <div class="card-title">Contributors</div>
+          <div class="card-description">
+            Website and event contibutors.
+          </div>
+        </div>
+      </a>
+
+      <!-- Tournaments Card (Page Redirect) -->
+      <a href="tournaments.html" class="card">
+        <div class="card-icon">
+          <img src="tournaments-logo.png" alt="Tournaments Icon" style="width: 200%; height: 200%; object-fit: contain;">
+        </div>
+        <div class="card-content">
+          <div class="card-title">Tournaments</div>
+          <div class="card-description">
+            Current and past TDS Tournaments and Events. More info found in Discord.
+          </div>
+        </div>
+      </a>
+
+    </div>
+
+  </main>
+
+  <!-- Cherry Blossom Animation Script (Upward Growing Floor Pile) -->
+  <script>
+    const canvas = document.getElementById('blossom-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const TOTAL_PETALS = 30;
+    const MAX_SETTLED_PETALS = 2000;
+    const fallingPetals = [];
+    const settledPetals = [];
+
+    class Petal {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * -canvas.height;
+        this.size = Math.random() * 10 + 8;
+        this.speedY = Math.random() * 1.5 + 0.8;
+        this.speedX = Math.random() * 1 - 0.5;
+        this.angle = Math.random() * Math.PI * 2;
+        this.spin = Math.random() * 0.02 - 0.01;
+        this.opacity = Math.random() * 0.4 + 0.6;
+      }
+
+      update() {
+        this.y += this.speedY;
+        this.x += Math.sin(this.y * 0.01) + this.speedX;
+        this.angle += this.spin;
+
+        // When a petal hits the floor pile height at the bottom
+        if (this.y > canvas.height + 20) {
+          if (settledPetals.length < MAX_SETTLED_PETALS) {
+            const fillRatio = settledPetals.length / MAX_SETTLED_PETALS;
+            const maxPileHeight = canvas.height * 0.8;
+            const currentPileTop = canvas.height - (fillRatio * maxPileHeight);
+
+            settledPetals.push({
+              x: Math.random() * canvas.width,
+              y: currentPileTop + (Math.random() * (canvas.height - currentPileTop)),
+              size: this.size,
+              angle: Math.random() * Math.PI * 2,
+              opacity: Math.random() * 0.3 + 0.3
+            });
+          }
+          this.reset();
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.fillStyle = `rgba(255, 183, 197, ${this.opacity})`;
+        
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-this.size, -this.size / 2, -this.size, this.size, 0, this.size * 1.5);
+        ctx.bezierCurveTo(this.size, this.size, this.size, -this.size / 2, 0, 0);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function drawSettledPetal(p) {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = `rgba(255, 183, 197, ${p.opacity})`;
+      
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(-p.size, -p.size / 2, -p.size, p.size, 0, p.size * 1.5);
+      ctx.bezierCurveTo(p.size, p.size, p.size, -p.size / 2, 0, 0);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    for (let i = 0; i < TOTAL_PETALS; i++) {
+      fallingPetals.push(new Petal());
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      settledPetals.forEach(p => drawSettledPetal(p));
+
+      fallingPetals.forEach(petal => {
+        petal.update();
+        petal.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+
+</body>
+</html>
